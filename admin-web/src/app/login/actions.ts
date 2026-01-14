@@ -20,33 +20,49 @@ export async function unifiedLogin(formData: FormData) {
     redirect(`/login?error=${encodeURIComponent('Invalid email or password. Please try again.')}`)
   }
 
-  // Fetch user role and vendor status
+  // Fetch user profile and role
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role, vendor_status, full_name')
+    .select('role, full_name')
     .eq('id', data.user.id)
     .single()
 
-  const role = profile?.role?.toUpperCase() || 'CUSTOMER'
-  const vendorStatus = profile?.vendor_status?.toUpperCase()
+  if (!profile) {
+    await supabase.auth.signOut()
+    redirect(`/login?error=${encodeURIComponent('User profile not found. Please contact support.')}`)
+  }
+
+  const role = profile.role // Already enum: 'admin' or 'vendor'
 
   revalidatePath('/', 'layout')
 
   // Role-based redirect
-  if (role === 'ADMIN') {
-    redirect('/dashboard/admin')
-  } else if (role === 'VENDOR') {
-    if (vendorStatus === 'APPROVED') {
-      redirect('/dashboard/vendor')
-    } else if (vendorStatus === 'PENDING') {
-      redirect('/dashboard/vendor/pending')
+  if (role === 'admin') {
+    redirect('/admin')
+  } else if (role === 'vendor') {
+    // Check vendor status from vendors table
+    const { data: vendor } = await supabase
+      .from('vendors')
+      .select('status')
+      .eq('user_id', data.user.id)
+      .single()
+
+    if (!vendor) {
+      // Vendor record doesn't exist yet - redirect to complete onboarding
+      redirect('/vendor/onboarding')
+    }
+
+    if (vendor.status === 'approved') {
+      redirect('/vendor')
+    } else if (vendor.status === 'pending') {
+      redirect('/vendor/pending')
     } else {
       // Rejected vendor
       await supabase.auth.signOut()
       redirect('/login?error=' + encodeURIComponent('Your vendor application has been rejected.'))
     }
   } else {
-    // Customer or unknown role - not allowed in admin panel
+    // Unknown role - not allowed in admin panel
     await supabase.auth.signOut()
     redirect('/login?error=' + encodeURIComponent('Access denied. This portal is for admins and vendors only.'))
   }

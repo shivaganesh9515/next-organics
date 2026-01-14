@@ -1,27 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/animations/animated_scale_button.dart';
 import '../../../../core/widgets/animations/fade_in_slide.dart';
+import '../../domain/entities/auth_state.dart';
+import '../providers/auth_provider.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _phoneController = TextEditingController();
-  bool _isLoading = false;
+
+  // Test Connection Debug Function
+  Future<void> _testConnection() async {
+    try {
+      final supabase = Supabase.instance.client;
+      final response = await supabase.from('products').select().limit(5);
+      final count = (response as List).length;
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content:
+                Text('✅ Connection Success! Found $count products (limit 5).'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ Connection Error: $e'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 10),
+          ),
+        );
+      }
+    }
+  }
 
   @override
   void dispose() {
     _phoneController.dispose();
     super.dispose();
   }
+
+  // ============================================
+  // DEMO MODE: Skip OTP for demo purposes
+  // Set to false to enable real OTP authentication
+  // ============================================
+  static const bool _demoMode = true;
 
   void _onLogin() async {
     if (_phoneController.text.length < 10) {
@@ -31,85 +70,124 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    setState(() => _isLoading = true);
-    
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1)); // Mock backend delay
+    // DEMO MODE: Skip OTP and go directly to home
+    if (_demoMode) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Demo Mode: Logging in...'),
+          duration: Duration(seconds: 1),
+        ),
+      );
 
-    if (mounted) {
-      setState(() => _isLoading = false);
-      context.go('/home');
+      // Update auth state correctly instead of just navigating
+      ref.read(authNotifierProvider.notifier).loginAsDemoUser();
+
+      // Navigation will be handled by the listener in build() or Router
+      return;
     }
+
+    // PRODUCTION MODE: Use real OTP authentication
+    // await ref.read(authNotifierProvider.notifier).signInWithPhone(
+    //       _phoneController.text,
+    //     );
+  }
+
+  void _onGoogleLogin() async {
+    // DEMO MODE: Skip and go to home
+    if (_demoMode) {
+      context.go('/home');
+      return;
+    }
+    // await ref.read(authNotifierProvider.notifier).signInWithGoogle();
+  }
+
+  void _onAppleLogin() async {
+    // DEMO MODE: Skip and go to home
+    if (_demoMode) {
+      context.go('/home');
+      return;
+    }
+    // await ref.read(authNotifierProvider.notifier).signInWithApple();
   }
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authNotifierProvider);
+    final isLoading = authState.status == AuthStatus.loading;
+
+    // Listen for state changes to navigate (disabled in demo mode)
+    if (!_demoMode) {
+      ref.listen<AuthStateData>(authNotifierProvider, (previous, next) {
+        if (next.isAuthenticated) {
+          context.go('/home');
+        } else if (next.isAwaitingOtp && next.pendingPhone != null) {
+          context.push('/otp', extra: next.pendingPhone);
+        } else if (next.hasError && next.error != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(next.error!),
+              backgroundColor: Colors.red.shade600,
+            ),
+          );
+          ref.read(authNotifierProvider.notifier).clearError();
+        }
+      });
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Hero Image Section
-            FadeInSlide(
-              delay: 0,
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.45,
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: AppColors.background,
-                  image: DecorationImage(
-                    image: NetworkImage('https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80'),
-                    fit: BoxFit.cover,
-                  ),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(40),
-                    bottomRight: Radius.circular(40),
-                  ),
+            // Hero Section with Logo
+            Container(
+              height: MediaQuery.of(context).size.height * 0.4,
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: AppColors.background,
+                // Soft gradient background
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFFECFCCB), // AppColors.primarySurface
+                    AppColors.background,
+                  ],
                 ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black.withOpacity(0.1),
-                        Colors.black.withOpacity(0.4),
-                      ],
-                    ),
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(40),
-                      bottomRight: Radius.circular(40),
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(24),
-                  alignment: Alignment.bottomLeft,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'Next Organics',
-                          style: AppTypography.labelMedium.copyWith(color: Colors.white),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Fresh Groceries\nDelivered Daily',
-                        style: AppTypography.headingLarge.copyWith(
-                          color: Colors.white,
-                          fontSize: 32,
-                          height: 1.1,
-                        ),
-                      ),
-                    ],
-                  ),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(40),
+                  bottomRight: Radius.circular(40),
                 ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FadeInSlide(
+                    delay: 0,
+                    child: Hero(
+                      tag: 'app_logo',
+                      child: Image.asset(
+                        'assets/images/logo.png',
+                        height: 180,
+                        width: 180,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  FadeInSlide(
+                    delay: 0.1,
+                    child: Text(
+                      'Fresh Groceries\nDelivered Daily',
+                      style: AppTypography.headingLarge.copyWith(
+                        color: AppColors.textPrimary,
+                        fontSize: 28,
+                        height: 1.2,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
               ),
             ),
 
@@ -131,17 +209,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     delay: 0.15,
                     child: Text(
                       'Enter your mobile number to login or signup',
-                      style: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondary),
+                      style: AppTypography.bodyMedium
+                          .copyWith(color: AppColors.textSecondary),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 32),
 
                   // Phone Input
                   FadeInSlide(
                     delay: 0.2,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 4),
                       decoration: BoxDecoration(
                         color: AppColors.background,
                         borderRadius: BorderRadius.circular(16),
@@ -149,15 +229,21 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       child: Row(
                         children: [
-                          Text('+91', style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.w600)),
+                          Text('+91',
+                              style: AppTypography.bodyLarge
+                                  .copyWith(fontWeight: FontWeight.w600)),
                           const SizedBox(width: 12),
-                          Container(width: 1, height: 24, color: Colors.grey.shade300),
+                          Container(
+                              width: 1,
+                              height: 24,
+                              color: Colors.grey.shade300),
                           const SizedBox(width: 12),
                           Expanded(
                             child: TextField(
                               controller: _phoneController,
                               keyboardType: TextInputType.phone,
-                              style: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.w600),
+                              style: AppTypography.bodyLarge
+                                  .copyWith(fontWeight: FontWeight.w600),
                               decoration: const InputDecoration(
                                 border: InputBorder.none,
                                 hintText: 'Mobile Number',
@@ -166,6 +252,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 LengthLimitingTextInputFormatter(10),
                                 FilteringTextInputFormatter.digitsOnly,
                               ],
+                              enabled: !isLoading,
                             ),
                           ),
                         ],
@@ -179,7 +266,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   FadeInSlide(
                     delay: 0.25,
                     child: AnimatedScaleButton(
-                      onTap: _onLogin,
+                      onTap: isLoading ? () {} : _onLogin,
                       child: Container(
                         width: double.infinity,
                         height: 56,
@@ -195,11 +282,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ],
                         ),
-                        child: _isLoading
+                        child: isLoading
                             ? const SizedBox(
                                 width: 24,
                                 height: 24,
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                    color: Colors.white, strokeWidth: 2),
                               )
                             : Text(
                                 'Continue',
@@ -225,7 +313,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Text(
                             'Or continue with',
-                            style: AppTypography.labelSmall.copyWith(color: AppColors.textHint),
+                            style: AppTypography.labelSmall
+                                .copyWith(color: AppColors.textHint),
                           ),
                         ),
                         Expanded(child: Divider(color: Colors.grey.shade200)),
@@ -241,9 +330,17 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _SocialButton(icon: Icons.g_mobiledata, label: 'Google', onTap: () {}),
+                        _SocialButton(
+                          icon: Icons.g_mobiledata,
+                          label: 'Google',
+                          onTap: isLoading ? () {} : _onGoogleLogin,
+                        ),
                         const SizedBox(width: 16),
-                        _SocialButton(icon: Icons.apple, label: 'Apple', onTap: () {}),
+                        _SocialButton(
+                          icon: Icons.apple,
+                          label: 'Apple',
+                          onTap: isLoading ? () {} : _onAppleLogin,
+                        ),
                       ],
                     ),
                   ),
@@ -255,7 +352,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Center(
                       child: Text(
                         'By continuing, you agree to our Terms & Privacy Policy',
-                        style: AppTypography.labelSmall.copyWith(color: AppColors.textHint),
+                        style: AppTypography.labelSmall
+                            .copyWith(color: AppColors.textHint),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -263,6 +361,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
             ),
+
+            // Debug Button
+            TextButton.icon(
+              onPressed: _testConnection,
+              icon: const Icon(Icons.bug_report, size: 16),
+              label: const Text('Test Supabase Connection'),
+              style: TextButton.styleFrom(foregroundColor: Colors.grey),
+            ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -275,7 +382,8 @@ class _SocialButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _SocialButton({required this.icon, required this.label, required this.onTap});
+  const _SocialButton(
+      {required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -296,7 +404,8 @@ class _SocialButton extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               label,
-              style: AppTypography.labelMedium.copyWith(fontWeight: FontWeight.w600),
+              style: AppTypography.labelMedium
+                  .copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),

@@ -24,6 +24,12 @@ dependencies:
   intl: ^0.18.1
   supabase_flutter: ^2.12.0
 
+  # Security & Storage
+  flutter_secure_storage: ^9.0.0
+
+  # Network
+  connectivity_plus: ^5.0.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

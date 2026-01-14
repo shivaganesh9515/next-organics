@@ -1,125 +1,133 @@
-# Next Organics - Flutter Grocery Delivery App
+# NextGen Organics - Hyperlocal Grocery Ecosystem
 
-A production-ready grocery delivery mobile app built with Flutter following clean architecture principles.
+**NextGen Organics** is a production-ready, dual-model grocery platform that bridges the gap between instant convenience and direct farm-to-table sourcing. It features a cross-platform mobile app for users and a powerful web-based admin panel for vendors and operations.
 
-## Features
+---
 
-✅ **Product Browsing**
+## 🏗️ Tech Stack
 
-- Home screen with banner carousel
-- Category-based navigation
-- Product grid with search
-- Product details with Hero animations
+### Mobile App (User Facing)
 
-✅ **Shopping Cart**
+- **Framework**: Flutter (Dart)
+- **State Management**: Riverpod
+- **Routing**: GoRouter
+- **Design System**: Custom "Clean Green" Theme, Glassmorphism elements.
 
-- Add/remove products
-- Update quantities
-- Swipe-to-delete
-- Price calculations with tax
+### Admin & Vendor Panel (Operations)
 
-✅ **User Experience**
+- **Framework**: Next.js (React / TypeScript)
+- **Styling**: Tailwind CSS + Shadcn UI
+- **Features**: Role-based access (Admin/Vendor), Data Visualization, Inventory Management.
 
-- Smooth animations (Hero, AnimatedContainer, AnimatedSwitcher)
-- Haptic feedback
-- Light/Dark theme toggle
-- Empty states
-- Loading indicators
+### Backend Infrastructure
 
-✅ **Search & Discovery**
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: Supabase Auth (Phone, Google, Apple)
+- **Storage**: Supabase Storage for product/vendor images.
 
-- Live search filtering
-- Category filtering
-- Popular search suggestions
+---
 
-## Tech Stack
+## 📱 Mobile App Setup (Flutter)
 
-**Framework:** Flutter (Dart)  
-**State Management:** Riverpod  
-**Routing:** GoRouter  
-**Architecture:** Clean Architecture (UI → State → Domain → Data)  
-**Design:** Custom widgets, ThemeData, Google Fonts  
-**Animations:** Hero, AnimatedContainer, AnimatedOpacity, AnimatedSwitcher  
-**Images:** cached_network_image
-
-## Project Structure
-
-```
-lib/
-├── core/
-│   ├── theme/          # App colors, typography, theme
-│   ├── router/         # GoRouter configuration
-│   ├── widgets/        # Shared widgets (bottom nav, product card, etc.)
-│   └── providers/      # Theme provider
-├── features/
-│   ├── onboarding/     # Onboarding screens
-│   ├── home/           # Home screen with banners
-│   ├── products/       # Product listing & details
-│   ├── cart/           # Shopping cart
-│   ├── search/         # Search functionality
-│   └── profile/        # User profile & settings
-└── main.dart           # App entry point
-```
-
-## Getting Started
+Located in `/frontend`.
 
 ### Prerequisites
 
 - Flutter SDK (>=3.0.0)
-- Dart SDK
+- Java JDK 17 (for Android)
 
-### Installation
+### Quick Start
 
-1. **Install dependencies:**
-
+1. **Navigate to the directory**:
+   ```bash
+   cd frontend
+   ```
+2. **Install dependencies**:
    ```bash
    flutter pub get
    ```
-
-2. **Run the app:**
-
+3. **Run the app**:
    ```bash
    flutter run
    ```
+   _Tip: Use `flutter run -d chrome` for web or connect an Android device/emulator._
 
-3. **Build for production:**
+---
 
+## 💻 Admin Web Panel Setup (Next.js)
+
+Located in `/admin-web`.
+
+### Prerequisites
+
+- Node.js (>=18.0.0)
+
+### Quick Start
+
+1. **Navigate to the directory**:
    ```bash
-   # Android
-   flutter build apk --release
-
-   # iOS
-   flutter build ios --release
+   cd admin-web
    ```
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+3. **Run development server**:
+   ```bash
+   npm run dev
+   ```
+4. **Open in browser**:
+   Visit [http://localhost:3000](http://localhost:3000)
+   _Demo Credentials:_ `admin@demo.com` / `Admin@123`
 
-## Features Overview
+---
 
-### Clean Architecture
+## 🗄️ Backend Setup (Supabase)
 
-- **Domain Layer:** Entities and repository interfaces
-- **Data Layer:** Mock data sources and repository implementations
-- **Presentation Layer:** Riverpod providers and UI screens
+This project relies on Supabase for data.
 
-### Mock Data
+1. **Schema Setup**: Run the `supabase_schema.sql` script in your Supabase SQL Editor to create tables.
+2. **Seed Data**: Run `seed_data.sql` to populate the database with categories, vendors, and dummy products.
+3. **Environment Links**:
+   - Update `frontend/lib/core/config/supabase_config.dart` with your Supabase URL/Key.
+   - Update `admin-web/.env.local` with your Supabase URL/Key.
 
-Currently uses mock data for all products, categories, and banners. The repository pattern makes it easy to swap in a real backend later.
+---
 
-### Animations
+## 🚀 Key Features
 
-- **Hero Animations:** Product images transition smoothly between screens
-- **Micro-animations:** Button states, cart badge updates
-- **Haptic Feedback:** Light impacts on interactions
-- **Smooth Transitions:** Page transitions with custom curves
+### 1. Hub Store vs Farms
 
-## Backend Integration (Future)
+- **Hub Store**: Platform-managed inventory for instant delivery.
+- **Farms**: Marketplace for verified local vendors to sell directly to consumers.
 
-The app is architected to easily connect to a REST API:
+### 2. Verified Vendor Architecture
 
-1. Replace mock data sources with API clients
-2. Add authentication provider
-3. Implement real-time updates
-4. Add payment gateway integration
+- Vendor onboarding flow via Web Portal.
+- Admin verification and approval pipeline.
+- Dedicated Vendor Profile pages in the mobile app.
 
-## License
+### 3. Smart Suggestions
 
-This project is for demonstration purposes.
+- Cross-selling engine in Product Details ("More from this Farm").
+- Impulse buy suggestions in Cart.
+
+---
+
+## 📂 Project Structure
+
+```
+next-organics/
+├── frontend/           # Flutter Mobile App
+│   ├── lib/features/   # Feature-based modular architecture
+│   └── lib/core/       # Shared utilities and widgets
+├── admin-web/          # Next.js Admin Dashboard
+│   ├── src/app/        # App Router pages
+│   └── src/components/ # Reusable UI components
+├── backend/            # Setup scripts & docs
+└── README.md           # This file
+```
+
+---
+
+_© 2026 NextGen Organics. All rights reserved._

@@ -8,6 +8,7 @@ import '../../../products/presentation/providers/products_provider.dart';
 import '../../../cart/presentation/providers/cart_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../home/presentation/widgets/product_suggestions_widget.dart';
 
 class ProductDetailsPage extends ConsumerStatefulWidget {
   final String productId;
@@ -36,7 +37,7 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
         body: const Center(child: Text('Product not found')),
       );
     }
-    
+
     return _buildProductDetails(context, product);
   }
 
@@ -226,13 +227,20 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
                             padding: EdgeInsets.zero,
                           ),
                           child: Text(
-                            _isDescriptionExpanded ? 'See less...' : 'See more...',
+                            _isDescriptionExpanded
+                                ? 'See less...'
+                                : 'See more...',
                             style: AppTypography.labelLarge.copyWith(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
+
+                        const SizedBox(height: 32),
+                        // SUGGESTIONS SECTION
+                        ProductSuggestionsWidget(currentProduct: product),
+
                         const SizedBox(height: 100), // Space for bottom section
                       ],
                     ),
@@ -424,14 +432,18 @@ class _QuantityButtonState extends State<_QuantityButton> {
           height: 44,
           decoration: BoxDecoration(
             color: widget.onPressed != null
-                ? (_isPressed ? AppColors.primary.withValues(alpha: 0.1) : Colors.transparent)
+                ? (_isPressed
+                    ? AppColors.primary.withValues(alpha: 0.1)
+                    : Colors.transparent)
                 : Colors.grey.shade100,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
             widget.icon,
             size: 20,
-            color: widget.onPressed != null ? AppColors.primary : AppColors.textHint,
+            color: widget.onPressed != null
+                ? AppColors.primary
+                : AppColors.textHint,
           ),
         ),
       ),

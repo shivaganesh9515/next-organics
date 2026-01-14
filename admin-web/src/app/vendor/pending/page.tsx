@@ -1,19 +1,18 @@
 import { redirect } from 'next/navigation'
 import { getUserWithRole, isVendor, isVendorPending } from '@/lib/auth/utils'
-import { VENDOR_LOGIN_PATH, VENDOR_DASHBOARD_PATH } from '@/lib/auth/constants'
 import { Clock, Mail, Phone, CheckCircle } from 'lucide-react'
-import { vendorLogout } from '../login/actions'
+import { logout } from '@/app/login/actions'
 
 export default async function VendorPendingPage() {
     const user = await getUserWithRole()
 
     if (!user || !isVendor(user)) {
-        redirect(VENDOR_LOGIN_PATH)
+        redirect('/login')
     }
 
     // If approved, redirect to dashboard
     if (!isVendorPending(user)) {
-        redirect(VENDOR_DASHBOARD_PATH)
+        redirect('/vendor')
     }
 
     return (
@@ -79,7 +78,7 @@ export default async function VendorPendingPage() {
                     </div>
 
                     {/* Logout */}
-                    <form action={vendorLogout} className="mt-8">
+                    <form action={logout} className="mt-8">
                         <button
                             type="submit"
                             className="text-gray-500 hover:text-gray-400 text-sm transition-colors"

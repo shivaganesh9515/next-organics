@@ -34,12 +34,23 @@ class CurvedHomeHeader extends ConsumerWidget {
                       onTap: onLocationTap,
                       child: Row(
                         children: [
-                          Icon(
-                            Icons.location_on_outlined,
-                            size: 22,
-                            color: AppColors.textSecondary,
+                          // Brand Logo
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            padding: const EdgeInsets.all(8),
+                            child: Image.asset(
+                              'assets/images/logo-icon.png',
+                              fit: BoxFit.contain,
+                            ),
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: 12),
+
+                          // Location Info
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,17 +64,23 @@ class CurvedHomeHeader extends ConsumerWidget {
                                 ),
                                 Row(
                                   children: [
-                                    Text(
-                                      'Green Valley Point',
-                                      style: AppTypography.labelLarge.copyWith(
-                                        color: AppColors.textPrimary,
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 15,
+                                    Flexible(
+                                      child: Text(
+                                        'Green Valley Point',
+                                        style:
+                                            AppTypography.labelLarge.copyWith(
+                                          color: AppColors.textPrimary,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 15,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
+                                    const SizedBox(
+                                        width: 4), // Adjusted spacing
                                     Icon(
                                       Icons.keyboard_arrow_down,
-                                      size: 20,
+                                      size: 18, // Slightly smaller
                                       color: AppColors.textPrimary,
                                     ),
                                   ],
@@ -78,7 +95,8 @@ class CurvedHomeHeader extends ConsumerWidget {
 
                   // Notification Icon
                   GestureDetector(
-                    onTap: () => context.push('/notifications'), // Updated route
+                    onTap: () =>
+                        context.push('/notifications'), // Updated route
                     child: Container(
                       width: 44,
                       height: 44,
@@ -96,11 +114,12 @@ class CurvedHomeHeader extends ConsumerWidget {
                       child: Icon(
                         Icons.notifications_outlined,
                         size: 22,
-                        color: AppColors.textPrimary, // Simple black icon for notifications
+                        color: AppColors
+                            .textPrimary, // Simple black icon for notifications
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(width: 10),
 
                   // Profile Button (New)
@@ -119,7 +138,9 @@ class CurvedHomeHeader extends ConsumerWidget {
                             offset: const Offset(0, 2),
                           ),
                         ],
-                        border: Border.all(color: AppColors.primary.withOpacity(0.2), width: 1),
+                        border: Border.all(
+                            color: AppColors.primary.withOpacity(0.2),
+                            width: 1),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(2.0),

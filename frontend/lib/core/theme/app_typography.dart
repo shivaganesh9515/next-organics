@@ -10,7 +10,7 @@ class AppTypography {
   static String get bodyFont => GoogleFonts.dmSans().fontFamily!;
 
   // ========== DISPLAY STYLES (Playfair - Luxury) ==========
-  
+
   static TextStyle displayLarge = GoogleFonts.playfairDisplay(
     fontSize: 36,
     fontWeight: FontWeight.w700,
@@ -33,7 +33,7 @@ class AppTypography {
   );
 
   // ========== HEADING STYLES (Playfair) ==========
-  
+
   static TextStyle headingLarge = GoogleFonts.playfairDisplay(
     fontSize: 22,
     fontWeight: FontWeight.w600,
@@ -56,30 +56,30 @@ class AppTypography {
   );
 
   // ========== BODY STYLES (DM Sans - Clean) ==========
-  
+
   static TextStyle bodyLarge = GoogleFonts.dmSans(
     fontSize: 16,
     fontWeight: FontWeight.w400,
-    letterSpacing: 0.15,
-    height: 1.5,
+    letterSpacing: 0, // Tighter
+    height: 1.4, // Slightly reduced height for density
   );
 
   static TextStyle bodyMedium = GoogleFonts.dmSans(
     fontSize: 14,
     fontWeight: FontWeight.w400,
-    letterSpacing: 0.15,
-    height: 1.5,
+    letterSpacing: -0.1, // Modern tight feel
+    height: 1.4,
   );
 
   static TextStyle bodySmall = GoogleFonts.dmSans(
     fontSize: 12,
     fontWeight: FontWeight.w400,
-    letterSpacing: 0.15,
-    height: 1.4,
+    letterSpacing: 0,
+    height: 1.3,
   );
 
   // ========== LABEL STYLES (DM Sans) ==========
-  
+
   static TextStyle labelLarge = GoogleFonts.dmSans(
     fontSize: 14,
     fontWeight: FontWeight.w500,
@@ -99,7 +99,7 @@ class AppTypography {
   );
 
   // ========== SPECIAL STYLES ==========
-  
+
   static TextStyle caption = GoogleFonts.dmSans(
     fontSize: 12,
     fontWeight: FontWeight.w400,
@@ -111,7 +111,7 @@ class AppTypography {
     fontWeight: FontWeight.w600,
     letterSpacing: 1.5,
   );
-  
+
   // Tagline style
   static TextStyle tagline = GoogleFonts.playfairDisplay(
     fontSize: 14,
@@ -121,7 +121,7 @@ class AppTypography {
   );
 
   // ========== PRICE STYLES (DM Sans Bold) ==========
-  
+
   static TextStyle priceLarge = GoogleFonts.dmSans(
     fontSize: 24,
     fontWeight: FontWeight.w700,
@@ -139,9 +139,9 @@ class AppTypography {
     fontWeight: FontWeight.w600,
     letterSpacing: 0,
   );
-  
+
   // ========== PREMIUM BADGE ==========
-  
+
   static TextStyle premiumBadge = GoogleFonts.dmSans(
     fontSize: 10,
     fontWeight: FontWeight.w700,

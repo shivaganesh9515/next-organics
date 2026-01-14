@@ -5,9 +5,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/entities/cart_item.dart';
 import '../../presentation/providers/cart_provider.dart';
+import '../../../orders/data/repositories/orders_repository.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/main_scaffold.dart';
+import '../widgets/cart_suggestions_widget.dart';
 
 class CartPage extends ConsumerWidget {
   const CartPage({super.key});
@@ -27,7 +30,8 @@ class CartPage extends ConsumerWidget {
               bottom: false,
               child: Container(
                 color: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                 child: Row(
                   children: [
                     IconButton(
@@ -75,7 +79,12 @@ class CartPage extends ConsumerWidget {
                           ),
                         ),
                         // Price Summary
+                        // Price Summary
                         _PriceSummary(cartState: cartState),
+
+                        // Impulse Buys
+                        const CartSuggestionsWidget(),
+                        const SizedBox(height: 100), // Bottom padding
                       ],
                     ),
             ),
@@ -140,7 +149,9 @@ class _CartItemCardState extends ConsumerState<_CartItemCard> {
             action: SnackBarAction(
               label: 'Undo',
               onPressed: () {
-                ref.read(cartProvider.notifier).addItem(product, quantity: quantity);
+                ref
+                    .read(cartProvider.notifier)
+                    .addItem(product, quantity: quantity);
               },
             ),
           ),
@@ -207,7 +218,8 @@ class _CartItemCardState extends ConsumerState<_CartItemCard> {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.star, size: 14, color: AppColors.ratingGold),
+                      const Icon(Icons.star,
+                          size: 14, color: AppColors.ratingGold),
                       const SizedBox(width: 2),
                       Text(
                         '${product.rating}',
@@ -219,7 +231,7 @@ class _CartItemCardState extends ConsumerState<_CartItemCard> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '\$${product.finalPrice.toStringAsFixed(2)}',
+                    '₹${product.finalPrice.toStringAsFixed(0)}',
                     style: AppTypography.priceMedium.copyWith(
                       color: AppColors.textPrimary,
                       fontWeight: FontWeight.w700,
@@ -276,7 +288,9 @@ class _QuantitySelectorState extends ConsumerState<_QuantitySelector> {
             onPressed: widget.quantity < widget.maxStock
                 ? () {
                     HapticFeedback.lightImpact();
-                    ref.read(cartProvider.notifier).incrementQuantity(widget.productId);
+                    ref
+                        .read(cartProvider.notifier)
+                        .incrementQuantity(widget.productId);
                   }
                 : null,
           ),
@@ -306,7 +320,9 @@ class _QuantitySelectorState extends ConsumerState<_QuantitySelector> {
               if (widget.quantity == 1) {
                 ref.read(cartProvider.notifier).removeItem(widget.productId);
               } else {
-                ref.read(cartProvider.notifier).decrementQuantity(widget.productId);
+                ref
+                    .read(cartProvider.notifier)
+                    .decrementQuantity(widget.productId);
               }
             },
             isDelete: widget.quantity == 1,
@@ -338,7 +354,9 @@ class _QuantityButtonState extends State<_QuantityButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: widget.onPressed != null ? (_) => setState(() => _isPressed = true) : null,
+      onTapDown: widget.onPressed != null
+          ? (_) => setState(() => _isPressed = true)
+          : null,
       onTapUp: widget.onPressed != null
           ? (_) {
               setState(() => _isPressed = false);
@@ -354,7 +372,9 @@ class _QuantityButtonState extends State<_QuantityButton> {
           height: 32,
           decoration: BoxDecoration(
             color: widget.onPressed != null
-                ? (_isPressed ? AppColors.primary.withValues(alpha: 0.1) : Colors.transparent)
+                ? (_isPressed
+                    ? AppColors.primary.withValues(alpha: 0.1)
+                    : Colors.transparent)
                 : Colors.grey.shade100,
           ),
           child: Icon(
@@ -362,7 +382,9 @@ class _QuantityButtonState extends State<_QuantityButton> {
             size: 18,
             color: widget.isDelete
                 ? AppColors.error
-                : (widget.onPressed != null ? AppColors.primary : AppColors.textHint),
+                : (widget.onPressed != null
+                    ? AppColors.primary
+                    : AppColors.textHint),
           ),
         ),
       ),
@@ -557,7 +579,7 @@ class _BrowseProductsButtonState extends State<_BrowseProductsButton> {
   }
 }
 
-class _BuyNowButton extends StatefulWidget {
+class _BuyNowButton extends ConsumerStatefulWidget {
   final double total;
   final int itemCount;
 
@@ -567,26 +589,56 @@ class _BuyNowButton extends StatefulWidget {
   });
 
   @override
-  State<_BuyNowButton> createState() => _BuyNowButtonState();
+  ConsumerState<_BuyNowButton> createState() => _BuyNowButtonState();
 }
 
-class _BuyNowButtonState extends State<_BuyNowButton> {
+class _BuyNowButtonState extends ConsumerState<_BuyNowButton> {
   bool _isPressed = false;
+  bool _isLoading = false;
+
+  Future<void> _handleCheckout() async {
+    setState(() => _isLoading = true);
+
+    try {
+      // Create order (mock)
+      final cartItems = ref.read(cartProvider).items;
+      await ref.read(ordersRepositoryProvider).createOrder(
+            total: widget.total,
+            itemCount: widget.itemCount,
+            items: cartItems
+                .map((e) => e.product.name)
+                .toList(), // Simplified logging
+          );
+
+      if (mounted) {
+        // Clear cart
+        ref.read(cartProvider.notifier).clear();
+
+        // Navigate to success
+        context.go('/order-success');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Checkout failed: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        HapticFeedback.mediumImpact();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Checkout coming soon!'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      },
+      onTapDown: _isLoading ? null : (_) => setState(() => _isPressed = true),
+      onTapUp: _isLoading
+          ? null
+          : (_) {
+              setState(() => _isPressed = false);
+              HapticFeedback.mediumImpact();
+              _handleCheckout();
+            },
       onTapCancel: () => setState(() => _isPressed = false),
       child: AnimatedScale(
         scale: _isPressed ? 0.98 : 1.0,
@@ -598,27 +650,36 @@ class _BuyNowButtonState extends State<_BuyNowButton> {
             borderRadius: BorderRadius.circular(12),
           ),
           alignment: Alignment.center,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Buy Now',
-                style: AppTypography.labelLarge.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
+          child: _isLoading
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Buy Now',
+                      style: AppTypography.labelLarge.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '(₹${widget.total.toStringAsFixed(0)})',
+                      style: AppTypography.labelLarge.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '(\$${widget.total.toStringAsFixed(2)})',
-                style: AppTypography.labelLarge.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

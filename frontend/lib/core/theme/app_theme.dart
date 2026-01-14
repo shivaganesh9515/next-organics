@@ -24,7 +24,7 @@ class AppTheme {
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
-    
+
     // Color Scheme
     colorScheme: const ColorScheme.light(
       primary: AppColors.primary,
@@ -38,7 +38,7 @@ class AppTheme {
     ),
 
     scaffoldBackgroundColor: AppColors.background,
-    
+
     // AppBar Theme
     appBarTheme: AppBarTheme(
       elevation: 0,
@@ -54,7 +54,7 @@ class AppTheme {
     cardTheme: CardThemeData(
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(radiusMedium),
+        borderRadius: BorderRadius.circular(radiusLarge), // Softer cards
       ),
       color: AppColors.surface,
     ),
@@ -64,15 +64,15 @@ class AppTheme {
       filled: true,
       fillColor: AppColors.surfaceVariant,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(radiusMedium),
+        borderRadius: BorderRadius.circular(radiusLarge),
         borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(radiusMedium),
+        borderRadius: BorderRadius.circular(radiusLarge),
         borderSide: BorderSide.none,
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(radiusMedium),
+        borderRadius: BorderRadius.circular(radiusLarge),
         borderSide: const BorderSide(color: AppColors.primary, width: 2),
       ),
       contentPadding: const EdgeInsets.symmetric(
@@ -95,7 +95,7 @@ class AppTheme {
           vertical: spacing16,
         ),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(radiusMedium),
+          borderRadius: BorderRadius.circular(radiusLarge),
         ),
         textStyle: AppTypography.labelLarge,
       ),
@@ -151,7 +151,7 @@ class AppTheme {
       labelMedium: AppTypography.labelMedium,
       labelSmall: AppTypography.labelSmall,
     ),
-    
+
     // Page Transitions
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
@@ -165,7 +165,7 @@ class AppTheme {
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    
+
     // Color Scheme
     colorScheme: const ColorScheme.dark(
       primary: AppColors.primary,
@@ -179,7 +179,7 @@ class AppTheme {
     ),
 
     scaffoldBackgroundColor: AppColors.backgroundDark,
-    
+
     // AppBar Theme
     appBarTheme: AppBarTheme(
       elevation: 0,
@@ -279,20 +279,32 @@ class AppTheme {
 
     // Text Theme
     textTheme: TextTheme(
-      displayLarge: AppTypography.displayLarge.copyWith(color: AppColors.textPrimaryDark),
-      displayMedium: AppTypography.displayMedium.copyWith(color: AppColors.textPrimaryDark),
-      displaySmall: AppTypography.displaySmall.copyWith(color: AppColors.textPrimaryDark),
-      headlineLarge: AppTypography.headingLarge.copyWith(color: AppColors.textPrimaryDark),
-      headlineMedium: AppTypography.headingMedium.copyWith(color: AppColors.textPrimaryDark),
-      headlineSmall: AppTypography.headingSmall.copyWith(color: AppColors.textPrimaryDark),
-      bodyLarge: AppTypography.bodyLarge.copyWith(color: AppColors.textPrimaryDark),
-      bodyMedium: AppTypography.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
-      bodySmall: AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryDark),
-      labelLarge: AppTypography.labelLarge.copyWith(color: AppColors.textPrimaryDark),
-      labelMedium: AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryDark),
-      labelSmall: AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryDark),
+      displayLarge:
+          AppTypography.displayLarge.copyWith(color: AppColors.textPrimaryDark),
+      displayMedium: AppTypography.displayMedium
+          .copyWith(color: AppColors.textPrimaryDark),
+      displaySmall:
+          AppTypography.displaySmall.copyWith(color: AppColors.textPrimaryDark),
+      headlineLarge:
+          AppTypography.headingLarge.copyWith(color: AppColors.textPrimaryDark),
+      headlineMedium: AppTypography.headingMedium
+          .copyWith(color: AppColors.textPrimaryDark),
+      headlineSmall:
+          AppTypography.headingSmall.copyWith(color: AppColors.textPrimaryDark),
+      bodyLarge:
+          AppTypography.bodyLarge.copyWith(color: AppColors.textPrimaryDark),
+      bodyMedium:
+          AppTypography.bodyMedium.copyWith(color: AppColors.textSecondaryDark),
+      bodySmall:
+          AppTypography.bodySmall.copyWith(color: AppColors.textSecondaryDark),
+      labelLarge:
+          AppTypography.labelLarge.copyWith(color: AppColors.textPrimaryDark),
+      labelMedium:
+          AppTypography.labelMedium.copyWith(color: AppColors.textPrimaryDark),
+      labelSmall:
+          AppTypography.labelSmall.copyWith(color: AppColors.textSecondaryDark),
     ),
-    
+
     // Page Transitions
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {

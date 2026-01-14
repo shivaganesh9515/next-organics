@@ -1,25 +1,25 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-
-const inter = Inter({ subsets: ['latin'] })
+import type { Metadata } from "next"
+import "./globals.css"
+import { Toaster } from 'sonner'
 
 export const metadata: Metadata = {
-  title: 'NextGen Admin | Organic Platform',
-  description: 'Control Panel for NextGen Organics App',
+  title: "Nextgen Organics - Admin & Vendor Portal",
+  description: "Manage your organic business with ease",
+  icons: {
+    icon: '/favicon.ico',
+  },
 }
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
+}>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className} suppressHydrationWarning>
-        <main className="min-h-screen">
-          {children}
-        </main>
+    <html lang="en" data-theme="light" suppressHydrationWarning>
+      <body suppressHydrationWarning>
+        {children}
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   )

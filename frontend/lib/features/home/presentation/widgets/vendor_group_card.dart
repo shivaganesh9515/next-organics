@@ -52,10 +52,14 @@ class VendorGroupCard extends StatelessWidget {
                   color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Text('Ad', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+                child: const Text('Ad',
+                    style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey)),
               ),
               const SizedBox(width: 8),
-              
+
               // Name & Details
               Expanded(
                 child: Column(
@@ -81,27 +85,31 @@ class VendorGroupCard extends StatelessWidget {
                             color: Color(0xFF2E7D32), // Green
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.star, size: 10, color: Colors.white),
+                          child: const Icon(Icons.star,
+                              size: 10, color: Colors.white),
                         ),
                         const SizedBox(width: 4),
                         Text(
                           '$rating ($ratingCount+)',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                         const SizedBox(width: 6),
                         const Text('•', style: TextStyle(color: Colors.grey)),
                         const SizedBox(width: 6),
                         Text(
                           time,
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 13),
                         ),
                       ],
                     ),
                     const SizedBox(height: 4),
                     // Discount text
-                     Row(
+                    Row(
                       children: [
-                        const Icon(Icons.local_offer, size: 14, color: Color(0xFFFB8C00)),
+                        const Icon(Icons.local_offer,
+                            size: 14, color: Color(0xFFFB8C00)),
                         const SizedBox(width: 4),
                         Text(
                           discount,
@@ -116,7 +124,7 @@ class VendorGroupCard extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // "View Items" Arrow
               GestureDetector(
                 onTap: onShopTap,
@@ -130,23 +138,29 @@ class VendorGroupCard extends StatelessWidget {
                         fontSize: 13,
                       ),
                     ),
-                    Icon(Icons.chevron_right, size: 16, color: Color(0xFFFB8C00)),
+                    Icon(Icons.chevron_right,
+                        size: 16, color: Color(0xFFFB8C00)),
                   ],
                 ),
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
           const Divider(height: 1),
           const SizedBox(height: 16),
-          
-          // 2. PRODUCT ROW (Show first 3)
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: products.take(3).map((product) {
-              return Expanded(
-                child: Container(
+
+          // 2. PRODUCT SCROLLABLE LIST
+          SizedBox(
+            height: 240, // Height for product card
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: products.length,
+              physics: const BouncingScrollPhysics(),
+              itemBuilder: (context, index) {
+                final product = products[index];
+                return Container(
+                  width: 140, // Fixed width for scrollable cards
                   margin: const EdgeInsets.only(right: 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,7 +189,8 @@ class VendorGroupCard extends StatelessWidget {
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(4),
                                   ),
-                                  child: const Icon(Icons.eco, size: 12, color: Colors.green),
+                                  child: const Icon(Icons.eco,
+                                      size: 12, color: Colors.green),
                                 ),
                               ),
                             ],
@@ -183,7 +198,7 @@ class VendorGroupCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      
+
                       // Name
                       Text(
                         product.name,
@@ -196,7 +211,7 @@ class VendorGroupCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
-                      
+
                       // Price
                       Text(
                         '₹${product.finalPrice.toStringAsFixed(0)}',
@@ -205,32 +220,41 @@ class VendorGroupCard extends StatelessWidget {
                           fontSize: 14,
                         ),
                       ),
-                      
-                      const SizedBox(height: 8),
+
+                      const Spacer(),
+
                       // ADD Button
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border.all(color: Colors.green),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        alignment: Alignment.center,
-                        child: const Text(
-                          'ADD',
-                          style: TextStyle(
-                            color: Colors.green,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
+                      InkWell(
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text('${product.name} added to cart')),
+                          );
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Colors.green),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          alignment: Alignment.center,
+                          child: const Text(
+                            'ADD',
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
-                ),
-              );
-            }).toList(),
+                );
+              },
+            ),
           ),
         ],
       ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -31,60 +30,68 @@ class CircularCategoryIcon extends StatelessWidget {
     return AnimatedScaleButton(
       onTap: onTap,
       child: SizedBox(
-        width: 72,
+        width: 76, // Slightly wider for better text fit
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             // Circular icon container
             Container(
-              width: 56,
-              height: 56,
+              width: 60, // Larger touch target
+              height: 60,
               decoration: BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    color: Colors.black.withAlpha(10), // Softer shadow
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
                   ),
                 ],
-                border: isSelected 
+                border: isSelected
                     ? Border.all(color: color ?? AppColors.primary, width: 2)
-                    : null,
+                    : Border.all(
+                        color: Colors.grey.shade100,
+                        width: 1), // Subtle border for unselected
               ),
-              child: iconData != null
-                  ? Icon(
-                      iconData,
-                      size: 26,
-                      color: isSelected 
-                          ? (color ?? AppColors.primary) 
-                          : (color ?? AppColors.textPrimary),
-                    )
-                  : ClipOval(
-                      child: CachedNetworkImage(
-                        imageUrl: imageUrl,
-                        fit: BoxFit.cover,
-                        width: 56,
-                        height: 56,
-                        placeholder: (context, url) => Container(
-                          color: AppColors.background,
+              child: Padding(
+                // Padding for ease
+                padding: const EdgeInsets.all(2.0),
+                child: ClipOval(
+                  child: iconData != null
+                      ? Center(
                           child: Icon(
-                            Icons.eco_outlined,
-                            color: AppColors.textHint,
-                            size: 24,
+                            iconData,
+                            size: 28,
+                            color: isSelected
+                                ? (color ?? AppColors.primary)
+                                : (color ?? AppColors.textPrimary),
+                          ),
+                        )
+                      : CachedNetworkImage(
+                          imageUrl: imageUrl,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                          placeholder: (context, url) => Container(
+                            color: AppColors.background,
+                            child: const Icon(
+                              Icons.eco_outlined,
+                              color: AppColors.textHint,
+                              size: 24,
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            color: AppColors.background,
+                            child: const Icon(
+                              Icons.eco_outlined,
+                              color: AppColors.textHint,
+                              size: 24,
+                            ),
                           ),
                         ),
-                        errorWidget: (context, url, error) => Container(
-                          color: AppColors.background,
-                          child: Icon(
-                            Icons.eco_outlined,
-                            color: AppColors.textHint,
-                            size: 24,
-                          ),
-                        ),
-                      ),
-                    ),
+                ),
+              ),
             ),
 
             const SizedBox(height: 8),
@@ -94,15 +101,15 @@ class CircularCategoryIcon extends StatelessWidget {
               label,
               style: AppTypography.labelSmall.copyWith(
                 fontSize: 12,
-                color: isSelected 
-                    ? (color ?? AppColors.textPrimary) 
+                color: isSelected
+                    ? (color ?? AppColors.textPrimary)
                     : AppColors.textSecondary,
-                fontWeight: isSelected 
-                    ? FontWeight.w600 
-                    : FontWeight.w500,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                letterSpacing: -0.2, // Tighter tracking
+                height: 1.1,
               ),
               textAlign: TextAlign.center,
-              maxLines: 1,
+              maxLines: 2, // Allow 2 lines for "Fruits & Veggies"
               overflow: TextOverflow.ellipsis,
             ),
           ],

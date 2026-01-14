@@ -14,26 +14,33 @@ export async function getUserWithRole(): Promise<AuthUser | null> {
     // Fetch profile with role info
     const { data: profile } = await supabase
         .from('profiles')
-        .select('role, vendor_status, full_name, phone')
+        .select('role, full_name')
         .eq('id', user.id)
         .single();
 
     if (!profile) {
-        // User exists but no profile - treat as customer
-        return {
-            id: user.id,
-            email: user.email || '',
-            role: 'CUSTOMER',
-        };
+        // User exists but no profile
+        return null;
+    }
+
+    // If vendor, fetch vendor status from vendors table
+    let vendorStatus: VendorStatus | undefined = undefined;
+    if (profile.role === 'vendor') {
+        const { data: vendor } = await supabase
+            .from('vendors')
+            .select('status')
+            .eq('user_id', user.id)
+            .single();
+        
+        vendorStatus = vendor?.status?.toUpperCase() as VendorStatus;
     }
 
     return {
         id: user.id,
         email: user.email || '',
         name: profile.full_name || undefined,
-        phone: profile.phone || undefined,
-        role: (profile.role?.toUpperCase() || 'CUSTOMER') as UserRole,
-        vendorStatus: profile.vendor_status?.toUpperCase() as VendorStatus | undefined,
+        role: (profile.role?.toUpperCase() || 'VENDOR') as UserRole,
+        vendorStatus,
     };
 }
 

@@ -10,6 +10,7 @@ class Product {
   final int stock;
   final String unit;
   final double? discount;
+  final String? vendorName;
 
   const Product({
     required this.id,
@@ -23,6 +24,7 @@ class Product {
     required this.stock,
     required this.unit,
     this.discount,
+    this.vendorName,
   });
 
   double get finalPrice {

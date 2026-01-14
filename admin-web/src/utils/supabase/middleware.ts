@@ -1,11 +1,8 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-// Route definitions
-const PUBLIC_ROUTES = ['/login', '/admin/login', '/vendor/login', '/auth/callback', '/forgot-password']
-
-const ADMIN_ROUTES = ['/', '/banners', '/manufacturers', '/users', '/settings', '/admin/dashboard', '/dashboard/admin']
-const VENDOR_ROUTES = ['/inventory', '/orders', '/earnings', '/vendor/dashboard', '/vendor/pending', '/dashboard/vendor']
+// Public routes that don't require authentication
+const PUBLIC_ROUTES = ['/login', '/auth/callback', '/forgot-password']
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({
@@ -36,31 +33,33 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname
 
-  // Allow public routes
+  // Allow public routes without auth check
   if (PUBLIC_ROUTES.some(route => pathname.startsWith(route))) {
-    // Check if user is already logged in on login pages
+    // If user is already logged in on login page, redirect to appropriate dashboard
     const { data: { user } } = await supabase.auth.getUser()
 
-    if (user && (pathname === '/login' || pathname === '/admin/login' || pathname === '/vendor/login')) {
+    if (user && pathname === '/login') {
       // Get user role to redirect appropriately
       const { data: profile } = await supabase
         .from('profiles')
-        .select('role, vendor_status')
+        .select('role')
         .eq('id', user.id)
         .single()
 
-      const role = profile?.role?.toUpperCase()
-      const vendorStatus = profile?.vendor_status?.toUpperCase()
+      if (profile?.role === 'admin') {
+        return NextResponse.redirect(new URL('/admin', request.url))
+      } else if (profile?.role === 'vendor') {
+        // Check vendor status
+        const { data: vendor } = await supabase
+          .from('vendors')
+          .select('status')
+          .eq('user_id', user.id)
+          .single()
 
-      if (role === 'ADMIN') {
-        return NextResponse.redirect(new URL('/dashboard/admin', request.url))
-      }
-
-      if (role === 'VENDOR') {
-        if (vendorStatus === 'APPROVED') {
-          return NextResponse.redirect(new URL('/dashboard/vendor', request.url))
-        } else if (vendorStatus === 'PENDING') {
-          return NextResponse.redirect(new URL('/dashboard/vendor/pending', request.url))
+        if (vendor?.status === 'approved') {
+          return NextResponse.redirect(new URL('/vendor', request.url))
+        } else if (vendor?.status === 'pending') {
+          return NextResponse.redirect(new URL('/vendor/pending', request.url))
         }
       }
     }
@@ -68,72 +67,70 @@ export async function updateSession(request: NextRequest) {
     return response
   }
 
-  // Get current user
+  // Get current user for protected routes
   const { data: { user } } = await supabase.auth.getUser()
 
-  // If not logged in, redirect to appropriate login
+  // If not logged in, redirect to login
   if (!user) {
-    const isAdminRoute = ADMIN_ROUTES.some(route =>
-      pathname === route || pathname.startsWith(route + '/')
-    )
-
-    const loginUrl = isAdminRoute ? '/admin/login' : '/vendor/login'
-    return NextResponse.redirect(new URL(loginUrl, request.url))
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
   // Get user role
   const { data: profile } = await supabase
     .from('profiles')
-    .select('role, vendor_status')
+    .select('role')
     .eq('id', user.id)
     .single()
 
-  const role = profile?.role?.toUpperCase() || 'CUSTOMER'
-  const vendorStatus = profile?.vendor_status?.toUpperCase()
+  if (!profile) {
+    return NextResponse.redirect(new URL('/login?error=Profile%20not%20found', request.url))
+  }
+
+  const role = profile.role
 
   // Check route access
-  const isAdminRoute = ADMIN_ROUTES.some(route =>
-    pathname === route || pathname.startsWith(route + '/')
-  )
-  const isVendorRoute = VENDOR_ROUTES.some(route =>
-    pathname === route || pathname.startsWith(route + '/')
-  )
+  const isAdminRoute = pathname.startsWith('/admin')
+  const isVendorRoute = pathname.startsWith('/vendor')
 
-  // Admin trying to access vendor routes -> redirect to admin dashboard
-  if (role === 'ADMIN' && isVendorRoute) {
-    return NextResponse.redirect(new URL('/admin/dashboard', request.url))
+  // Admin accessing admin routes - allow
+  if (role === 'admin' && isAdminRoute) {
+    return response
   }
 
-  // Vendor trying to access admin routes -> redirect to vendor dashboard
-  if (role === 'VENDOR' && isAdminRoute) {
-    if (vendorStatus === 'APPROVED') {
-      return NextResponse.redirect(new URL('/vendor/dashboard', request.url))
-    } else if (vendorStatus === 'PENDING') {
-      return NextResponse.redirect(new URL('/vendor/pending', request.url))
-    } else {
-      // Rejected vendor - sign out and redirect
-      await supabase.auth.signOut()
-      return NextResponse.redirect(new URL('/vendor/login?error=Your+account+has+been+rejected', request.url))
-    }
+  // Vendor trying to access admin routes -> redirect to vendor
+  if (role === 'vendor' && isAdminRoute) {
+    return NextResponse.redirect(new URL('/vendor', request.url))
   }
 
-  // Customer or unknown role trying to access admin/vendor routes
-  if (role === 'CUSTOMER') {
-    await supabase.auth.signOut()
-    return NextResponse.redirect(new URL('/vendor/login?error=Access+denied', request.url))
+  // Admin trying to access vendor routes -> redirect to admin
+  if (role === 'admin' && isVendorRoute) {
+     return NextResponse.redirect(new URL('/admin', request.url))
   }
 
-  // Vendor accessing vendor routes - check approval status
-  if (role === 'VENDOR' && isVendorRoute) {
-    // Pending vendor can only access pending page
-    if (vendorStatus === 'PENDING' && pathname !== '/vendor/pending') {
+  // Vendor accessing vendor routes
+  if (role === 'vendor' && isVendorRoute) {
+    // Check vendor status from vendors table
+    const { data: vendor } = await supabase
+      .from('vendors')
+      .select('status')
+      .eq('user_id', user.id)
+      .single()
+
+    const status = vendor?.status || 'pending'
+    
+    // If pending, allow only pending page
+    if (status === 'pending' && !pathname.includes('/pending')) {
       return NextResponse.redirect(new URL('/vendor/pending', request.url))
     }
-    // Approved vendor should not see pending page
-    if (vendorStatus === 'APPROVED' && pathname === '/vendor/pending') {
-      return NextResponse.redirect(new URL('/vendor/dashboard', request.url))
+
+    // If approved, disallow pending page
+    if (status === 'approved' && pathname.includes('/pending')) {
+       return NextResponse.redirect(new URL('/vendor', request.url))
     }
+
+    return response
   }
 
+  // Default: allow the request
   return response
 }

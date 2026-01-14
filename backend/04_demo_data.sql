@@ -99,28 +99,28 @@ BEGIN
   -- Only insert if demo vendor exists
   IF demo_vendor_id IS NOT NULL THEN
     -- Insert demo products
-    INSERT INTO public.products (vendor_id, category_id, name, description, price, stock, is_active) VALUES
+    INSERT INTO public.products (vendor_id, category_id, name, description, price, stock, is_active, image_url) VALUES
     -- Vegetables
-    (demo_vendor_id, cat_vegetables, 'Organic Tomatoes', 'Farm-fresh desi tomatoes, pesticide-free. Hand-picked from local organic farms.', 52.00, 150, true),
-    (demo_vendor_id, cat_vegetables, 'Fresh Spinach', 'Palak leaves, iron-rich superfood. Perfect for smoothies and cooking.', 25.00, 120, true),
-    (demo_vendor_id, cat_vegetables, 'Organic Carrots', 'Crunchy orange carrots, vitamin A rich. Great for salads and juices.', 45.00, 180, true),
+    (demo_vendor_id, cat_vegetables, 'Organic Tomatoes', 'Farm-fresh desi tomatoes, pesticide-free. Hand-picked from local organic farms.', 52.00, 150, true, 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=500'),
+    (demo_vendor_id, cat_vegetables, 'Fresh Spinach', 'Palak leaves, iron-rich superfood. Perfect for smoothies and cooking.', 25.00, 120, true, 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=500'),
+    (demo_vendor_id, cat_vegetables, 'Organic Carrots', 'Crunchy orange carrots, vitamin A rich. Great for salads and juices.', 45.00, 180, true, 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=500'),
     
     -- Fruits
-    (demo_vendor_id, cat_fruits, 'Fresh Bananas', 'Elaichi kela, sweet & ripe. High in potassium and natural energy.', 45.00, 200, true),
-    (demo_vendor_id, cat_fruits, 'Organic Alphonso Mango', 'King of fruits from Ratnagiri. Premium quality, naturally ripened.', 399.00, 50, true),
-    (demo_vendor_id, cat_fruits, 'Fresh Pomegranate', 'Anaar with ruby red seeds. Rich in antioxidants.', 160.00, 80, true),
+    (demo_vendor_id, cat_fruits, 'Fresh Bananas', 'Elaichi kela, sweet & ripe. High in potassium and natural energy.', 45.00, 200, true, 'https://images.unsplash.com/photo-1603833665858-e61d17a8622e?w=500'),
+    (demo_vendor_id, cat_fruits, 'Organic Alphonso Mango', 'King of fruits from Ratnagiri. Premium quality, naturally ripened.', 399.00, 50, true, 'https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=500'),
+    (demo_vendor_id, cat_fruits, 'Fresh Pomegranate', 'Anaar with ruby red seeds. Rich in antioxidants.', 160.00, 80, true, 'https://images.unsplash.com/photo-1615485925763-867862f80a02?w=500'),
     
     -- Dairy
-    (demo_vendor_id, cat_dairy, 'Pure Desi Ghee', 'A2 cow ghee made using traditional bilona method. Premium quality.', 599.00, 50, true),
-    (demo_vendor_id, cat_dairy, 'Organic Paneer', 'Fresh cottage cheese made from organic milk. High in protein.', 280.00, 80, true),
-    (demo_vendor_id, cat_dairy, 'Farm Fresh Milk', 'A2 cow milk, unhomogenized. Delivered fresh daily.', 70.00, 100, true),
+    (demo_vendor_id, cat_dairy, 'Pure Desi Ghee', 'A2 cow ghee made using traditional bilona method. Premium quality.', 599.00, 50, true, 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=500'),
+    (demo_vendor_id, cat_dairy, 'Organic Paneer', 'Fresh cottage cheese made from organic milk. High in protein.', 280.00, 80, true, 'https://images.unsplash.com/photo-1559561853-08451507cbe4?w=500'),
+    (demo_vendor_id, cat_dairy, 'Farm Fresh Milk', 'A2 cow milk, unhomogenized. Delivered fresh daily.', 70.00, 100, true, 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=500'),
     
     -- Grains
-    (demo_vendor_id, cat_grains, 'Organic Basmati Rice', 'Aged 2 years for extra aroma. Premium long grain variety.', 160.00, 200, true),
-    (demo_vendor_id, cat_grains, 'Organic Toor Dal', 'Arhar dal, protein-rich. Essential for daily cooking.', 140.00, 200, true),
+    (demo_vendor_id, cat_grains, 'Organic Basmati Rice', 'Aged 2 years for extra aroma. Premium long grain variety.', 160.00, 200, true, 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500'),
+    (demo_vendor_id, cat_grains, 'Organic Toor Dal', 'Arhar dal, protein-rich. Essential for daily cooking.', 140.00, 200, true, 'https://images.unsplash.com/photo-1585996736075-814cb2414736?w=500'),
     
     -- Spices
-    (demo_vendor_id, cat_spices, 'Organic Turmeric Powder', 'Haldi with high curcumin content. Immunity booster.', 100.00, 200, true)
+    (demo_vendor_id, cat_spices, 'Organic Turmeric Powder', 'Haldi with high curcumin content. Immunity booster.', 100.00, 200, true, 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=500')
     ON CONFLICT DO NOTHING;
 
     -- =============================================

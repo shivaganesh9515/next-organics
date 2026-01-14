@@ -17,19 +17,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<OnboardingPage> _pages = const [
     OnboardingPage(
-      icon: '🌿',
+      imagePath: 'assets/images/logo.png',
       title: 'Pure Organics. Direct from Farms.',
-      description: 'Know exactly where your food comes from. Every product traced back to certified organic farms.',
+      description:
+          'Know exactly where your food comes from. Every product traced back to certified organic farms.',
     ),
     OnboardingPage(
       icon: '✨',
       title: 'Premium Quality Guaranteed',
-      description: 'We partner only with verified organic farms to bring you the freshest, chemical-free produce.',
+      description:
+          'We partner only with verified organic farms to bring you the freshest, chemical-free produce.',
     ),
     OnboardingPage(
       icon: '🚀',
       title: 'Farm to Table in Hours',
-      description: 'Same-day delivery from local farms. Fresher than supermarkets, better for your family.',
+      description:
+          'Same-day delivery from local farms. Fresher than supermarkets, better for your family.',
     ),
   ];
 
@@ -91,7 +94,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   decoration: BoxDecoration(
                     color: _currentPage == index
                         ? AppColors.primary
-                        : (isDark ? AppColors.textHintDark : AppColors.textHint),
+                        : (isDark
+                            ? AppColors.textHintDark
+                            : AppColors.textHint),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -100,7 +105,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             const SizedBox(height: 32),
             // Next/Get Started Button
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppTheme.spacing24),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: AppTheme.spacing24),
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -142,11 +148,19 @@ class _PageContent extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Icon
-          Text(
-            page.icon,
-            style: const TextStyle(fontSize: 120),
-          ),
+          // Icon or Image
+          if (page.imagePath != null)
+            Image.asset(
+              page.imagePath!,
+              height: 200,
+              width: 200,
+              fit: BoxFit.contain,
+            )
+          else
+            Text(
+              page.icon ?? '',
+              style: const TextStyle(fontSize: 120),
+            ),
           const SizedBox(height: 48),
           // Title
           Text(
@@ -161,7 +175,9 @@ class _PageContent extends StatelessWidget {
           Text(
             page.description,
             style: AppTypography.bodyLarge.copyWith(
-              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondary,
             ),
             textAlign: TextAlign.center,
           ),
@@ -172,13 +188,15 @@ class _PageContent extends StatelessWidget {
 }
 
 class OnboardingPage {
-  final String icon;
+  final String? icon;
+  final String? imagePath;
   final String title;
   final String description;
 
   const OnboardingPage({
-    required this.icon,
+    this.icon,
+    this.imagePath,
     required this.title,
     required this.description,
-  });
+  }) : assert(icon != null || imagePath != null);
 }

@@ -9,6 +9,8 @@ import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../products/presentation/providers/products_provider.dart';
 
+import 'dart:async';
+
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
 
@@ -18,32 +20,49 @@ class SearchScreen extends ConsumerStatefulWidget {
 
 class _SearchScreenState extends ConsumerState<SearchScreen> {
   late TextEditingController _searchController;
+  Timer? _debounceTimer;
 
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController();
+    // Initialize with current query if any
+    final currentQuery = ref.read(searchQueryProvider);
+    if (currentQuery.isNotEmpty) {
+      _searchController.text = currentQuery;
+    }
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      ref.read(searchQueryProvider.notifier).state = query;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final searchQuery = ref.watch(searchQueryProvider);
-    final filteredProductsAsync = ref.watch(filteredProductsProvider);
+    final searchResultsAsync = ref.watch(searchResultsProvider);
+    final currentQuery = ref.watch(searchQueryProvider); // Watch for UI state
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
         title: TextField(
           controller: _searchController,
           autofocus: true,
           decoration: InputDecoration(
-            hintText: 'Search products...',
+            hintText: 'Search organic products...',
             border: InputBorder.none,
             hintStyle: AppTypography.bodyMedium.copyWith(
               color: isDark ? AppColors.textHintDark : AppColors.textHint,
@@ -52,21 +71,19 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           style: AppTypography.bodyLarge.copyWith(
             color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
           ),
-          onChanged: (value) {
-            ref.read(searchQueryProvider.notifier).state = value;
-          },
+          onChanged: _onSearchChanged,
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
           onPressed: () {
             ref.read(searchQueryProvider.notifier).state = '';
             context.pop();
           },
         ),
         actions: [
-          if (searchQuery.isNotEmpty)
+          if (currentQuery.isNotEmpty || _searchController.text.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.clear),
+              icon: const Icon(Icons.clear, color: AppColors.textSecondary),
               onPressed: () {
                 _searchController.clear();
                 ref.read(searchQueryProvider.notifier).state = '';
@@ -74,17 +91,25 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             ),
         ],
       ),
-      body: searchQuery.isEmpty
+      body: currentQuery.isEmpty
           ? _buildSuggestions(isDark)
-          : Builder(
-              builder: (context) {
-                final products = filteredProductsAsync; // List<Product>
-                
+          : searchResultsAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => EmptyState(
+                icon: Icons.error_outline,
+                title: 'Search Error',
+                message: 'Something went wrong. Please try again.',
+                action: ElevatedButton(
+                  onPressed: () => ref.refresh(searchResultsProvider),
+                  child: const Text('Retry'),
+                ),
+              ),
+              data: (products) {
                 if (products.isEmpty) {
                   return EmptyState(
                     icon: Icons.search_off,
                     title: 'No Results',
-                    message: 'No products found for "$searchQuery"',
+                    message: 'No products found for "$currentQuery"',
                   );
                 }
 
@@ -92,12 +117,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   padding: const EdgeInsets.all(AppTheme.spacing16),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.7,
+                    childAspectRatio: 0.72,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
                   ),
                   itemCount: products.length,
-                  itemBuilder: (context, index) => ProductCard(product: products[index]),
+                  itemBuilder: (context, index) =>
+                      ProductCard(product: products[index]),
                 );
               },
             ),
@@ -105,7 +131,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   Widget _buildSuggestions(bool isDark) {
-    final suggestions = ['Fruits', 'Vegetables', 'Dairy', 'Organic', 'Beverages'];
+    final suggestions = ['Vegetables', 'Fruits', 'Dairy', 'Rice', 'Spices'];
 
     return Padding(
       padding: const EdgeInsets.all(AppTheme.spacing20),
@@ -116,6 +142,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             'Popular Searches',
             style: AppTypography.headingMedium.copyWith(
               color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+              fontSize: 16,
             ),
           ),
           const SizedBox(height: 16),
@@ -129,9 +156,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   _searchController.text = suggestion;
                   ref.read(searchQueryProvider.notifier).state = suggestion;
                 },
-                backgroundColor: isDark ? AppColors.surfaceVariantDark : AppColors.surfaceVariant,
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(color: Colors.grey.shade200),
+                ),
                 labelStyle: AppTypography.labelMedium.copyWith(
-                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+                  color: AppColors.textPrimary,
                 ),
               );
             }).toList(),

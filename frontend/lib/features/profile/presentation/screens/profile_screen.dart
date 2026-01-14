@@ -5,6 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/providers/theme_provider.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -13,6 +14,7 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final themeMode = ref.watch(themeModeProvider);
+    final user = ref.watch(authUserProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -44,18 +46,35 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'John Doe',
+                  user?.fullName ?? 'Guest User',
                   style: AppTypography.headingLarge.copyWith(
-                    color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimary,
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  'john.doe@example.com',
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+                if (user?.email != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    user!.email!,
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondary,
+                    ),
                   ),
-                ),
+                ],
+                if (user?.phone != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    user!.phone!,
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: isDark
+                          ? AppColors.textSecondaryDark
+                          : AppColors.textSecondary,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -66,7 +85,6 @@ class ProfileScreen extends ConsumerWidget {
           _SettingsCard(
             isDark: isDark,
             children: [
-
               _SettingsTile(
                 icon: Icons.notifications_outlined,
                 title: 'Notifications',
@@ -115,9 +133,7 @@ class ProfileScreen extends ConsumerWidget {
                 title: 'Favorites',
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Feature coming soon!')),
-                  );
+                  context.push('/favourites');
                 },
                 isDark: isDark,
               ),
@@ -184,10 +200,12 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     TextButton(
                       onPressed: () {
-                        context.pop();
+                        context.pop(); // Close dialog
+                        ref.read(authNotifierProvider.notifier).signOut();
                         context.go('/onboarding');
                       },
-                      child: const Text('Logout', style: TextStyle(color: AppColors.error)),
+                      child: const Text('Logout',
+                          style: TextStyle(color: AppColors.error)),
                     ),
                   ],
                 ),
@@ -268,7 +286,9 @@ class _SettingsTile extends StatelessWidget {
           ? Text(
               subtitle!,
               style: AppTypography.bodySmall.copyWith(
-                color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondary,
+                color: isDark
+                    ? AppColors.textSecondaryDark
+                    : AppColors.textSecondary,
               ),
             )
           : null,

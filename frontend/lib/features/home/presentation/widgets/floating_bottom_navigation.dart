@@ -1,3 +1,4 @@
+import 'dart:ui'; // Required for ImageFilter
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -17,49 +18,71 @@ class FloatingBottomNavigation extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(left: 16, right: 16, bottom: 20),
       height: 72,
+      // Shadow remains on the outer container
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(36),
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(24), // Tighter, cleaner curve
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 20,
-            offset: const Offset(0, 4),
+            offset: const Offset(0, 10),
+            spreadRadius: -5,
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _NavItem(
-            icon: Icons.home_rounded,
-            label: 'Home',
-            isActive: currentIndex == 0,
-            onTap: () => onTap(0),
+      // Clip for the blur effect
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), // Glass blur
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.85), // Semi-transparent white
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.2),
+                width: 1.5,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _NavItem(
+                  icon: Icons.home_rounded,
+                  label: 'Home',
+                  isActive: currentIndex == 0,
+                  onTap: () => onTap(0),
+                ),
+                _NavItem(
+                  icon: Icons
+                      .grid_view_rounded, // Better icon for 'Categories'/"Shop"
+                  activeIcon: Icons.grid_view_rounded,
+                  label: 'Shop',
+                  isActive: currentIndex == 1,
+                  onTap: () => onTap(1),
+                ),
+                _NavItem(
+                  icon:
+                      Icons.favorite_border_rounded, // Premium rounded outline
+                  activeIcon: Icons.favorite_rounded,
+                  label: 'Saved',
+                  isActive: currentIndex == 2,
+                  onTap: () => onTap(2),
+                ),
+                _NavItem(
+                  icon: Icons
+                      .shopping_bag_outlined, // More standard ecommerce bag
+                  activeIcon: Icons.shopping_bag_rounded,
+                  label: 'Cart',
+                  isActive: currentIndex == 3,
+                  onTap: () => onTap(3),
+                  badge: 2, // Ideally dynamic from provider
+                ),
+              ],
+            ),
           ),
-          _NavItem(
-            icon: Icons.shopping_bag_outlined,
-            activeIcon: Icons.shopping_bag_rounded,
-            label: 'Shop',
-            isActive: currentIndex == 1,
-            onTap: () => onTap(1),
-          ),
-          _NavItem(
-            icon: Icons.favorite_outline_rounded,
-            activeIcon: Icons.favorite_rounded,
-            label: 'Saved',
-            isActive: currentIndex == 2,
-            onTap: () => onTap(2),
-          ),
-          _NavItem(
-            icon: Icons.shopping_cart_outlined,
-            activeIcon: Icons.shopping_cart_rounded,
-            label: 'Cart',
-            isActive: currentIndex == 3,
-            onTap: () => onTap(3),
-            badge: 2,
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -97,11 +120,13 @@ class _NavItem extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOutCubic, // Snappy fade/expand
-          padding: isActive 
+          padding: isActive
               ? const EdgeInsets.symmetric(horizontal: 16, vertical: 12)
               : const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: isActive ? AppColors.primary : Colors.transparent, // FADE IN COLOR
+            color: isActive
+                ? AppColors.primary
+                : Colors.transparent, // FADE IN COLOR
             borderRadius: BorderRadius.circular(30),
           ),
           child: Row(
@@ -112,16 +137,16 @@ class _NavItem extends StatelessWidget {
               Stack(
                 clipBehavior: Clip.none,
                 children: [
-                   AnimatedScale(
-                     scale: isActive ? 1.0 : 0.9,
-                     duration: const Duration(milliseconds: 200),
-                     child: Icon(
+                  AnimatedScale(
+                    scale: isActive ? 1.0 : 0.9,
+                    duration: const Duration(milliseconds: 200),
+                    child: Icon(
                       isActive ? (activeIcon ?? icon) : icon,
                       size: 24,
                       color: isActive ? Colors.white : AppColors.textPrimary,
-                     ),
-                   ),
-                   if (badge != null && badge! > 0)
+                    ),
+                  ),
+                  if (badge != null && badge! > 0)
                     Positioned(
                       top: -2,
                       right: -2,
@@ -136,7 +161,7 @@ class _NavItem extends StatelessWidget {
                     ),
                 ],
               ),
-              
+
               if (isActive) ...[
                 const SizedBox(width: 8),
                 // Text Fades In

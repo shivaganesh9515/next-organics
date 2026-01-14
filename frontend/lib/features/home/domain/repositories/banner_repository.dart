@@ -1,4 +1,5 @@
+import '../entities/banner.dart';
 
 abstract class BannerRepository {
-  Future<List<Banner>> getBanners();
+  Future<List<HomeBanner>> getBanners();
 }

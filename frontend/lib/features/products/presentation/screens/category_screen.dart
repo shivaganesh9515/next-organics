@@ -7,7 +7,8 @@ import '../../../../core/widgets/empty_state.dart';
 import '../../../../core/widgets/main_scaffold.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../products/domain/entities/product.dart'; 
+import '../../../products/domain/entities/product.dart';
+import '../../../products/domain/entities/category.dart';
 import '../providers/products_provider.dart';
 
 import '../../../home/presentation/widgets/hub_farm_toggle.dart';
@@ -31,15 +32,50 @@ class CategoryScreen extends ConsumerStatefulWidget {
 
 class _CategoryScreenState extends ConsumerState<CategoryScreen> {
   bool _isFarmMode = false;
-  final List<String> _filters = ['All', 'Price: Low to High', 'Price: High to Low', 'Best Rated'];
+  final List<String> _filters = [
+    'All',
+    'Price: Low to High',
+    'Price: High to Low',
+    'Best Rated'
+  ];
   int _selectedFilterIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    // Determine which provider to watch based on categoryId
-    final productsAsync = widget.categoryId == 'all'
-        ? ref.watch(productsProvider)
-        : ref.watch(productRepositoryProvider).getProductsByCategory(widget.categoryId);
+    final allProducts = ref.watch(productsProvider);
+    final categories = ref.watch(categoriesProvider);
+
+    // Filter products
+    List<Product> products = [];
+    if (widget.categoryId == 'all') {
+      products = allProducts;
+    } else {
+      // Find category name from ID
+      final category = categories.firstWhere(
+        (c) => c.id == widget.categoryId,
+        orElse: () =>
+            Category(id: '', name: '', icon: '', imageUrl: '', productCount: 0),
+      );
+
+      if (category.name.isNotEmpty) {
+        products = allProducts
+            .where(
+                (p) => p.category.toLowerCase() == category.name.toLowerCase())
+            .toList();
+      }
+    }
+
+    // Apply sorting
+    if (_selectedFilterIndex == 1) {
+      // Price Low to High
+      products.sort((a, b) => a.finalPrice.compareTo(b.finalPrice));
+    } else if (_selectedFilterIndex == 2) {
+      // Price High to Low
+      products.sort((a, b) => b.finalPrice.compareTo(a.finalPrice));
+    } else if (_selectedFilterIndex == 3) {
+      // Best Rated
+      products.sort((a, b) => b.rating.compareTo(a.rating));
+    }
 
     return MainScaffold(
       currentIndex: 1,
@@ -50,7 +86,8 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
           backgroundColor: Colors.white,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textPrimary, size: 20),
+            icon: const Icon(Icons.arrow_back_ios_new,
+                color: AppColors.textPrimary, size: 20),
             onPressed: () => context.pop(),
           ),
           centerTitle: true,
@@ -63,7 +100,8 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -78,11 +116,13 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.search, color: AppColors.textSecondary, size: 22),
+                      const Icon(Icons.search,
+                          color: AppColors.textSecondary, size: 22),
                       const SizedBox(width: 12),
                       Text(
                         'Search in ${widget.categoryName}...',
-                        style: AppTypography.bodyMedium.copyWith(color: AppColors.textHint),
+                        style: AppTypography.bodyMedium
+                            .copyWith(color: AppColors.textHint),
                       ),
                     ],
                   ),
@@ -112,14 +152,18 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                         backgroundColor: Colors.white,
                         selectedColor: AppColors.primary,
                         labelStyle: TextStyle(
-                          color: isSelected ? Colors.white : AppColors.textPrimary,
+                          color:
+                              isSelected ? Colors.white : AppColors.textPrimary,
                           fontSize: 12,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                          fontWeight:
+                              isSelected ? FontWeight.w600 : FontWeight.w400,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                           side: BorderSide(
-                            color: isSelected ? AppColors.primary : Colors.grey.shade200,
+                            color: isSelected
+                                ? AppColors.primary
+                                : Colors.grey.shade200,
                           ),
                         ),
                         showCheckmark: false,
@@ -141,10 +185,10 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
                 ),
               ),
             ),
-            
+
             // 4. CONTENT
             Expanded(
-              child: _buildContent(productsAsync as List<dynamic>),
+              child: _buildContent(products),
             ),
           ],
         ),
@@ -152,7 +196,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
     );
   }
 
-  Widget _buildContent(List<dynamic> products) {
+  Widget _buildContent(List<Product> products) {
     if (products.isEmpty) {
       return EmptyState(
         icon: Icons.category_outlined,
@@ -167,36 +211,38 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
 
     // --- FARMS MODE (Vendor Groups) ---
     if (_isFarmMode) {
-      // Mock Grouping
-      final farms = {
-        'Green Earth Farm': products.take(3).toList(),
-        'Organic Daily': products.skip(3).take(3).toList(),
-        'Nature\'s Basket': products.skip(1).take(2).toList(),
-      };
+      // Group by vendor
+      final Map<String, List<Product>> productsByVendor = {};
+      for (var product in products) {
+        final vendor = product.vendorName ?? 'Unknown Farm';
+        if (!productsByVendor.containsKey(vendor)) {
+          productsByVendor[vendor] = [];
+        }
+        productsByVendor[vendor]!.add(product);
+      }
 
       return ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: farms.length,
+        itemCount: productsByVendor.length,
         itemBuilder: (context, index) {
-           final farmName = farms.keys.elementAt(index % farms.length);
-           final farmProducts = farms.values.elementAt(index % farms.length);
-           if (farmProducts.isEmpty) return const SizedBox.shrink();
+          final farmName = productsByVendor.keys.elementAt(index);
+          final farmProducts = productsByVendor.values.elementAt(index);
 
-           return FadeInSlide(
-             delay: 0.2 + (index * 0.1),
-             child: Padding(
-               padding: const EdgeInsets.only(bottom: 16),
-               child: VendorGroupCard(
-                 farmName: farmName,
-                 rating: 4.8,
-                 ratingCount: 120,
-                 time: '25 mins',
-                 discount: 'Free Delivery',
-                 products: List<Product>.from(farmProducts),
-                 onShopTap: () {},
-               ),
-             ),
-           );
+          return FadeInSlide(
+            delay: 0.2 + (index * 0.1),
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: VendorGroupCard(
+                farmName: farmName,
+                rating: 4.8, // Fallback/Random for now
+                ratingCount: 120,
+                time: '25 mins',
+                discount: 'Free Delivery',
+                products: farmProducts,
+                onShopTap: () {},
+              ),
+            ),
+          );
         },
       );
     }
@@ -215,9 +261,14 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
         return FadeInSlide(
           delay: 0.2 + (index * 0.05),
           child: GridProductCard(
-            product: products[index] as Product,
-            onTap: () => context.push('/product/${(products[index] as Product).id}'),
-            onAddToCart: () {},
+            product: products[index],
+            onTap: () => context.push('/product/${products[index].id}'),
+            onAddToCart: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content: Text('${products[index].name} added to cart')),
+              );
+            },
           ),
         );
       },
