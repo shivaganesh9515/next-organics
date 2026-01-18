@@ -78,7 +78,7 @@ class CurvedHomeHeader extends ConsumerWidget {
                                     ),
                                     const SizedBox(
                                         width: 4), // Adjusted spacing
-                                    Icon(
+                                    const Icon(
                                       Icons.keyboard_arrow_down,
                                       size: 18, // Slightly smaller
                                       color: AppColors.textPrimary,
@@ -111,7 +111,7 @@ class CurvedHomeHeader extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.notifications_outlined,
                         size: 22,
                         color: AppColors
@@ -142,8 +142,8 @@ class CurvedHomeHeader extends ConsumerWidget {
                             color: AppColors.primary.withOpacity(0.2),
                             width: 1),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(2.0),
+                      child: const Padding(
+                        padding: EdgeInsets.all(2.0),
                         child: CircleAvatar(
                           backgroundColor: AppColors.background,
                           child: Icon(

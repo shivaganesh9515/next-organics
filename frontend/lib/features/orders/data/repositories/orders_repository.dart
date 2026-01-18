@@ -33,5 +33,5 @@ class OrdersRepository {
 
 // Provider
 final ordersRepositoryProvider = Provider<OrdersRepository>((ref) {
-  return OrdersRepository(LoggerService());
+  return OrdersRepository(const LoggerService());
 });

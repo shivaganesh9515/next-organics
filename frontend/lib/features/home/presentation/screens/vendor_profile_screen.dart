@@ -154,9 +154,9 @@ class VendorProfileScreen extends ConsumerWidget {
                               color: AppColors.ratingGold,
                               borderRadius: BorderRadius.circular(6),
                             ),
-                            child: Row(
+                            child: const Row(
                               children: [
-                                const Text(
+                                Text(
                                   '4.5', // Mock or vendor.rating
                                   style: TextStyle(
                                     color: Colors.white,
@@ -164,8 +164,8 @@ class VendorProfileScreen extends ConsumerWidget {
                                     fontSize: 14,
                                   ),
                                 ),
-                                const SizedBox(width: 4),
-                                const Icon(Icons.star,
+                                SizedBox(width: 4),
+                                Icon(Icons.star,
                                     size: 14, color: Colors.white),
                               ],
                             ),

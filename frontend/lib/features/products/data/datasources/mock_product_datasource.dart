@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' hide Category;
 import '../../domain/entities/product.dart';
 import '../../domain/entities/category.dart';
 

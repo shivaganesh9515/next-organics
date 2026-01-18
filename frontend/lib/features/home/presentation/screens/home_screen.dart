@@ -61,6 +61,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 // Scrollable Content
                 Expanded(
                   child: CustomScrollView(
+                    key: ValueKey('home-scroll-$activeMode'),
                     slivers: [
                       // Toggle (Hub vs Farms)
                       const SliverToBoxAdapter(

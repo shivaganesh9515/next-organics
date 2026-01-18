@@ -15,7 +15,7 @@ import '../../../../core/services/logger_service.dart';
 const bool useRealBackend = true;
 
 // Logger provider
-final _loggerProvider = Provider<LoggerService>((ref) => LoggerService());
+final _loggerProvider = Provider<LoggerService>((ref) => const LoggerService());
 
 // Supabase datasource provider
 final _supabaseDataSourceProvider = Provider<SupabaseProductDataSource>((ref) {
@@ -165,7 +165,7 @@ final vendorsProvider = FutureProvider<List<Vendor>>((ref) async {
   if (!useRealBackend) {
     // Return mock vendors if backend not enabled
     return [
-      Vendor(
+      const Vendor(
           id: 'v1',
           name: 'Green Valley Farms',
           imageUrl:
@@ -174,7 +174,7 @@ final vendorsProvider = FutureProvider<List<Vendor>>((ref) async {
           reviewCount: 120,
           isVerified: true,
           location: 'Nashik, MH'),
-      Vendor(
+      const Vendor(
           id: 'v2',
           name: 'Organic Roots',
           imageUrl:
@@ -183,7 +183,7 @@ final vendorsProvider = FutureProvider<List<Vendor>>((ref) async {
           reviewCount: 85,
           isVerified: true,
           location: 'Pune, MH'),
-      Vendor(
+      const Vendor(
           id: 'v3',
           name: 'Fresh Fields',
           imageUrl:

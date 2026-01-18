@@ -39,7 +39,7 @@ class ApiClient {
     )? queryBuilder,
   }) async {
     return _executeWithErrorHandling(() async {
-      var query = _client.from(table).select(select);
+      final query = _client.from(table).select(select);
 
       if (queryBuilder != null) {
         final result = await queryBuilder(query);
@@ -49,7 +49,7 @@ class ApiClient {
 
       final result = await query;
       LoggerService.api('SELECT', table, response: '${result.length} rows');
-      return result as List<Map<String, dynamic>>;
+      return result;
     });
   }
 

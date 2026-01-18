@@ -117,7 +117,7 @@ class _AddressCard extends StatelessWidget {
                           color: AppColors.primary.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Text(
+                        child: const Text(
                           'DEFAULT',
                           style: TextStyle(
                             color: AppColors.primary,

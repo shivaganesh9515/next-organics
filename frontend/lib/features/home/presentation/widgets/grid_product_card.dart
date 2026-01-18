@@ -144,7 +144,7 @@ class GridProductCard extends ConsumerWidget {
                           if (product.hasDiscount) ...[
                             Text(
                               '₹${product.price.toStringAsFixed(0)}',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 10,
                                 decoration: TextDecoration.lineThrough,
                                 color: AppColors.textHint,

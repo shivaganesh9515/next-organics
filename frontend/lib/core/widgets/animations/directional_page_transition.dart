@@ -43,7 +43,7 @@ class _DirectionalPageTransitionState extends State<DirectionalPageTransition>
       duration: const Duration(milliseconds: 500), // Slower, more premium
     );
     
-    final curve = Curves.fastOutSlowIn; // Premium ease
+    const curve = Curves.fastOutSlowIn; // Premium ease
 
     _slideInRight = Tween<Offset>(begin: const Offset(1.0, 0), end: Offset.zero)
         .animate(CurvedAnimation(parent: _controller, curve: curve));

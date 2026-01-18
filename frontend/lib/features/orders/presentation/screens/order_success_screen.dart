@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 // import 'package:lottie/lottie.dart'; // Removed to fix build error
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/main_scaffold.dart';
 
 class OrderSuccessScreen extends StatefulWidget {
   const OrderSuccessScreen({super.key});

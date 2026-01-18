@@ -5,7 +5,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../products/domain/entities/product.dart';
 import '../../../cart/presentation/providers/cart_provider.dart';
-import '../../../cart/domain/entities/cart_item.dart';
 
 class LargeProductCard extends ConsumerWidget {
   final Product product;

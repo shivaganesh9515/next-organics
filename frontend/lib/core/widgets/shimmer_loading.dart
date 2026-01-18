@@ -89,7 +89,7 @@ class ShimmerProductCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Image shimmer
@@ -101,13 +101,13 @@ class ShimmerProductCard extends StatelessWidget {
               borderRadius: 12,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           // Text shimmers
-          const ShimmerLoading(width: 100, height: 14, borderRadius: 4),
-          const SizedBox(height: 6),
-          const ShimmerLoading(width: 70, height: 12, borderRadius: 4),
-          const SizedBox(height: 8),
-          const ShimmerLoading(width: double.infinity, height: 36, borderRadius: 18),
+          ShimmerLoading(width: 100, height: 14, borderRadius: 4),
+          SizedBox(height: 6),
+          ShimmerLoading(width: 70, height: 12, borderRadius: 4),
+          SizedBox(height: 8),
+          ShimmerLoading(width: double.infinity, height: 36, borderRadius: 18),
         ],
       ),
     );

@@ -54,7 +54,7 @@ class _CategoryScreenState extends ConsumerState<CategoryScreen> {
       final category = categories.firstWhere(
         (c) => c.id == widget.categoryId,
         orElse: () =>
-            Category(id: '', name: '', icon: '', imageUrl: '', productCount: 0),
+            const Category(id: '', name: '', icon: '', imageUrl: '', productCount: 0),
       );
 
       if (category.name.isNotEmpty) {

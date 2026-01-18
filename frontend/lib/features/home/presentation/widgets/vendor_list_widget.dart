@@ -151,7 +151,7 @@ class _VendorCard extends StatelessWidget {
                             color: AppColors.success.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: Text(
+                          child: const Text(
                             'Verified Farm',
                             style: TextStyle(
                               color: AppColors.success,

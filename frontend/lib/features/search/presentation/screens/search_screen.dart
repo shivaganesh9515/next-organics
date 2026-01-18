@@ -5,7 +5,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/product_card.dart';
-import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../products/presentation/providers/products_provider.dart';
 

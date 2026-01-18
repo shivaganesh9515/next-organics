@@ -8,7 +8,6 @@ import '../../presentation/providers/cart_provider.dart';
 import '../../../orders/data/repositories/orders_repository.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/main_scaffold.dart';
 import '../widgets/cart_suggestions_widget.dart';
 

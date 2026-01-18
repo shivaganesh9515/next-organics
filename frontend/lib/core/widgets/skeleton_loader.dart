@@ -83,7 +83,7 @@ class _ProductCardSkeleton extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Image skeleton
@@ -91,7 +91,7 @@ class _ProductCardSkeleton extends StatelessWidget {
             flex: 55,
             child: ClipRRect(
               borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(16)),
+                  BorderRadius.vertical(top: Radius.circular(16)),
               child: _ShimmerBox(
                 width: double.infinity,
                 height: double.infinity,
@@ -100,14 +100,14 @@ class _ProductCardSkeleton extends StatelessWidget {
           ),
           // Content skeleton
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _ShimmerBox(width: double.infinity, height: 16),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 _ShimmerBox(width: 80, height: 12),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
